@@ -140,3 +140,36 @@ async def delete(id: UUID4, db_session: DatabaseDependency) -> None:
     
     await db_session.delete(atleta)
     await db_session.commit()
+
+@router.get(
+    '/{nome}', 
+    summary='Consulta um Atleta pelo nome',
+    status_code=status.HTTP_200_OK,
+    response_model=list[AtletaOut]
+)
+async def get_by_nome(nome: str, db_session: DatabaseDependency) -> list[AtletaOut]:
+    result = await db_session.execute(select(AtletaModel).filter_by(nome=nome))
+    atletas = result.scalars().all()
+    if not atletas:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f'Atleta não encontrado com o nome: {nome}'
+        )
+    return [AtletaOut.from_orm(atleta) for atleta in atletas]
+
+@router.get(
+    '/{cpf}', 
+    summary='Consulta um Atleta pelo CPF',
+    status_code=status.HTTP_200_OK,
+    response_model=list[AtletaOut]
+)
+async def get_by_nome(cpf: str, db_session: DatabaseDependency) -> list[AtletaOut]:
+    result = await db_session.execute(select(AtletaModel).filter_by(cpf=cpf))
+    atletas = result.scalars().all()
+    if not atletas:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f'Atleta não encontrado com o nome: {cpf}'
+        )
+    return [AtletaOut.from_orm(atleta) for atleta in atletas]
+    
